@@ -41,3 +41,8 @@ The following libraries are required to run this project:
 - **Test Accuracy with Augmentation:** ~ 84.46%
 - **Test Accuracy with Augmentation (Second run):** ~ 90.38%
 - **Test Accuracy with Augmentation (Third run):** ~ 93.43%
+- **Test Accuracies of the multiple runs (5):** [93.26923076923077, 92.78846153846153, 90.5448717948718, 89.26282051282051, 91.34615384615384]
+**Mean Test Accuracy:** 91.44%
+**Standard Deviation of Test Accuracy:** 1.46%
+
+
