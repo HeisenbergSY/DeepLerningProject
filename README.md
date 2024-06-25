@@ -32,3 +32,10 @@ The following libraries are required to run this project:
 - numpy
 - pillow
 
+## Changes Made
+- Added data augmentation (rotation, flipping, and zooming) to improve model generalization.
+- Updated training script to include data augmentation.
+
+## Results
+- **Original Test Accuracy:** ~ 70.83%
+- **Test Accuracy with Augmentation:** ~ 84.46%
