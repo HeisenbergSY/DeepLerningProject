@@ -1,6 +1,7 @@
+# inference.py
 import torch
 
-def infer(model, image, device='cpu'):
+def infer(model, image, device='cuda'):
     model.eval()
     with torch.no_grad():
         image = image.to(device)

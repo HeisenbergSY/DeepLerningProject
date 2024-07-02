@@ -1,0 +1,8 @@
+Learning Rate: 0.001
+Data Augmentations: ['RandomRotation(30)', 'RandomHorizontalFlip()', 'RandomResizedCrop(224, scale=(0.8, 1.0))', 'HistogramEqualization()', 'RandomAffine(degrees=0, translate=(0.1, 0.1))', 'RandomVerticalFlip()']
+Model Used: MobileNetV3Binary
+Execution Time (seconds): 410.88556957244873
+Number of Epochs: 6
+Final Test Accuracy: 72.75641025641026
+
+Dopple the batch size (64)

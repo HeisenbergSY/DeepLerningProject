@@ -1,0 +1,7 @@
+Best Learning Rate: 0.001
+Best Number of Epochs: 8
+End Epoch: 8
+Data Augmentations: ['RandomRotation(30)', 'RandomHorizontalFlip()', 'RandomResizedCrop(224, scale=(0.8, 1.0))', 'HistogramEqualization()', 'RandomAffine(degrees=0, translate=(0.1, 0.1))', 'RandomVerticalFlip()']
+Model Used: MobileNetV3Binary
+Execution Time (seconds): 731.5686140060425
+Final Test Accuracy: 92.62820512820512

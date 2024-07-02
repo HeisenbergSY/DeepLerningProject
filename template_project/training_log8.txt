@@ -1,0 +1,8 @@
+Learning Rate: 0.001
+Data Augmentations: ['RandomRotation(30)', 'RandomHorizontalFlip()', 'RandomResizedCrop(224, scale=(0.8, 1.0))', 'HistogramEqualization()', 'RandomAffine(degrees=0, translate=(0.1, 0.1))', 'RandomVerticalFlip()']
+Model Used: MobileNetV3Binary
+Execution Time (seconds): 380.9137535095215
+Number of Epochs: 6
+Final Test Accuracy: 92.3076923076923
+
+The changes made to the model ensure that all layers are unfrozen, meaning all parameters of the pre-trained model are updated during fine-tuning.

@@ -1,3 +1,4 @@
+# model.py
 import torch
 from torch import nn
 from torchvision.models import mobilenet_v3_large, MobileNet_V3_Large_Weights
@@ -7,6 +8,12 @@ class MobileNetV3Binary(nn.Module):
         super(MobileNetV3Binary, self).__init__()
         weights = MobileNet_V3_Large_Weights.IMAGENET1K_V1
         self.mobilenet = mobilenet_v3_large(weights=weights)
+        
+        # Unfreeze layers
+        for param in self.mobilenet.parameters():
+            param.requires_grad = True
+
+        # Custom classifier
         self.mobilenet.classifier[3] = nn.Linear(self.mobilenet.classifier[3].in_features, 1)
         self.sigmoid = nn.Sigmoid()
 
