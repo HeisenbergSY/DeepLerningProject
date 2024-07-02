@@ -35,14 +35,12 @@ The following libraries are required to run this project:
 ## Changes Made
 - Added data augmentation (rotation, flipping, and zooming) to improve model generalization.
 - Updated training script to include data augmentation.
-
+- To handle class imbalance undersampling of minority class has been implemented
+- More preprocessing step: Histogram Equalization
+- Doing test with different lerning rate. Best lerning rate 0.001
+- Implement early stopping to not overfit the model
+- 
 ## Results
-- **Original Test Accuracy:** ~ 70.83%
-- **Test Accuracy with Augmentation:** ~ 84.46%
-- **Test Accuracy with Augmentation (Second run):** ~ 90.38%
-- **Test Accuracy with Augmentation (Third run):** ~ 93.43%
-- **Test Accuracies of the multiple runs (5):** [93.26, 92.78, 90.54, 89.26, 91.34]
--- **Mean Test Accuracy:** 91.44%
--- **Standard Deviation of Test Accuracy:** 1.46%
+- **Each run is logged in training_log file. The log files include information about the used parameters and the results. Log files are found in TEMPLATE_PROJECT folder.**
 
 
