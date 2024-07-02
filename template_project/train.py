@@ -1,5 +1,6 @@
 import torch
 from torch import nn, optim
+import torch.cuda.amp as amp
 import copy
 
 class EarlyStopping:
@@ -30,9 +31,10 @@ class EarlyStopping:
         self.val_loss_min = val_loss
         self.best_model = copy.deepcopy(model.state_dict())
 
-def train_model(model, train_loader, val_loader, num_epochs=20, learning_rate=0.001, device='cuda'):
-    criterion = nn.BCELoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+def train_model(model, train_loader, val_loader, num_epochs=20, learning_rate=0.001, weight_decay=1e-4, device='cuda'):
+    criterion = nn.BCEWithLogitsLoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    scaler = amp.GradScaler()
     early_stopping = EarlyStopping(patience=3, delta=0.001)
 
     final_epoch = 0
@@ -43,12 +45,15 @@ def train_model(model, train_loader, val_loader, num_epochs=20, learning_rate=0.
         running_loss = 0.0
         for images, labels in train_loader:
             images, labels = images.to(device), labels.unsqueeze(1).float().to(device)
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-
             optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            
+            with amp.autocast():
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+            
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
             running_loss += loss.item()
 
         val_loss = validate_model(model, val_loader, device, criterion)
@@ -86,7 +91,7 @@ def validate_model_accuracy(model, val_loader, device):
         for images, labels in val_loader:
             images, labels = images.to(device), labels.unsqueeze(1).float().to(device)
             outputs = model(images)
-            predicted = outputs.round()
+            predicted = (outputs > 0).float()
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 

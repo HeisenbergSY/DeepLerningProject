@@ -1,0 +1,27 @@
+Best Parameters:
+  fold: 3
+  learning_rate: 0.001
+  num_epochs: 1
+  weight_decay: 0.0001
+Best Accuracy: 0.6266025641025641
+Data Augmentations:
+  RandomRotation(30)
+  RandomHorizontalFlip()
+  RandomResizedCrop(224, scale=(0.8, 1.0))
+  HistogramEqualization()
+  RandomAffine(degrees=0, translate=(0.1, 0.1))
+  RandomVerticalFlip()
+Model Used: MobileNetV3Binary
+Execution Time (seconds): 396.3776161670685
+Number of Epochs: 1
+K-Fold Cross-Validation Results:
+  {'fold': 1, 'test_accuracy': 0.625, 'test_precision': 0.625, 'test_recall': 1.0, 'test_f1_score': 0.7692307692307693, 'test_auc_roc': 0.5}
+  {'fold': 2, 'test_accuracy': 0.625, 'test_precision': 0.625, 'test_recall': 1.0, 'test_f1_score': 0.7692307692307693, 'test_auc_roc': 0.5}
+  {'fold': 3, 'test_accuracy': 0.6266025641025641, 'test_precision': 0.6260032102728732, 'test_recall': 1.0, 'test_f1_score': 0.769990128331688, 'test_auc_roc': 0.5021367521367521}
+Hardware Profile:
+  Platform: Windows-11-10.0.22631-SP0
+  Processor: AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
+  RAM: 31.93 GB
+  CUDA Available: True
+  CUDA Device Count: 1
+  CUDA Device Name: NVIDIA GeForce RTX 3070

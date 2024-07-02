@@ -1,0 +1,30 @@
+Best Hyperparameters:
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  num_epochs: 10
+Best Cross-Validated Accuracy: 0.8018162393162394
+Data Augmentations:
+  RandomRotation(30)
+  RandomHorizontalFlip()
+  RandomResizedCrop(224, scale=(0.8, 1.0))
+  HistogramEqualization()
+  RandomAffine(degrees=0, translate=(0.1, 0.1))
+  RandomVerticalFlip()
+Model Used: MobileNetV3Binary
+Execution Time (seconds): 4577.465620279312
+Hardware Profile:
+  Platform: Windows-11-10.0.22631-SP0
+  Processor: AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
+  RAM: 31.93 GB
+  CUDA Available: True
+  CUDA Device Count: 1
+  CUDA Device Name: NVIDIA GeForce RTX 3070
+Hyperparameter Tuning Results:
+  {'fold': 1, 'params': {'learning_rate': 0.001, 'weight_decay': 0.0001, 'num_epochs': 10}, 'final_epoch': 10, 'best_val_accuracy': 98.67740080506037, 'test_accuracy': 0.8317307692307693, 'test_precision': 0.7890466531440162, 'test_recall': 0.9974358974358974, 'test_f1_score': 0.8810872027180068, 'test_auc_roc': 0.7764957264957265}
+  {'fold': 2, 'params': {'learning_rate': 0.001, 'weight_decay': 0.0001, 'num_epochs': 10}, 'final_epoch': 10, 'best_val_accuracy': 98.61989649223692, 'test_accuracy': 0.7596153846153846, 'test_precision': 0.7230483271375465, 'test_recall': 0.9974358974358974, 'test_f1_score': 0.8383620689655172, 'test_auc_roc': 0.6803418803418804}
+  {'fold': 3, 'params': {'learning_rate': 0.001, 'weight_decay': 0.0001, 'num_epochs': 10}, 'final_epoch': 10, 'best_val_accuracy': 98.56156501726122, 'test_accuracy': 0.8141025641025641, 'test_precision': 0.7718253968253969, 'test_recall': 0.9974358974358974, 'test_f1_score': 0.8702460850111857, 'test_auc_roc': 0.752991452991453}
+  {'fold': 1, 'params': {'learning_rate': 0.001, 'weight_decay': 1e-05, 'num_epochs': 10}, 'final_epoch': 10, 'best_val_accuracy': 98.15986198964923, 'test_accuracy': 0.7339743589743589, 'test_precision': 0.7014388489208633, 'test_recall': 1.0, 'test_f1_score': 0.8245243128964059, 'test_auc_roc': 0.6452991452991452}
+  {'fold': 2, 'params': {'learning_rate': 0.001, 'weight_decay': 1e-05, 'num_epochs': 10}, 'final_epoch': 10, 'best_val_accuracy': 97.46981023576768, 'test_accuracy': 0.780448717948718, 'test_precision': 0.7400379506641366, 'test_recall': 1.0, 'test_f1_score': 0.8505997818974919, 'test_auc_roc': 0.7072649572649572}
+  {'fold': 3, 'params': {'learning_rate': 0.001, 'weight_decay': 1e-05, 'num_epochs': 10}, 'final_epoch': 6, 'best_val_accuracy': 97.46835443037975, 'test_accuracy': 0.7259615384615384, 'test_precision': 0.6951871657754011, 'test_recall': 1.0, 'test_f1_score': 0.8201892744479495, 'test_auc_roc': 0.6346153846153846}
+Best hyperparameters: {'learning_rate': 0.001, 'weight_decay': 0.0001, 'num_epochs': 10}
+Best cross-validated accuracy: 0.8018162393162394

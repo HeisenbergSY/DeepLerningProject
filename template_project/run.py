@@ -1,9 +1,12 @@
 import torch
+import torch.cuda.amp as amp
 import matplotlib.pyplot as plt
 import numpy as np
 import random
 import time
 import logging
+from torchvision.datasets import ImageFolder
+from torchvision import transforms
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 import platform
 import psutil
@@ -13,6 +16,9 @@ from train import train_model
 from test import test_model
 from inference import infer
 from visualization import visualize_class_distribution
+from sklearn.model_selection import KFold
+from torch.utils.data import DataLoader, Subset, SubsetRandomSampler
+import itertools
 
 def set_seed(seed):
     torch.manual_seed(seed)
@@ -21,7 +27,7 @@ def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.benchmark = True  # Enable cuDNN benchmarking for improved performance
 
 def show_augmented_images(data_loader):
     images, _ = next(iter(data_loader))
@@ -45,6 +51,21 @@ def log_hardware_profile():
     }
     return hw_profile
 
+def get_kfold_data_loaders(dataset, k=3, batch_size=256):  # Increased batch size
+    kf = KFold(n_splits=k, shuffle=True, random_state=42)
+    fold_data_loaders = []
+
+    for train_index, val_index in kf.split(dataset):
+        train_subset = Subset(dataset, train_index)
+        val_subset = Subset(dataset, val_index)
+        
+        train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)  # Increased num_workers
+        val_loader = DataLoader(val_subset, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True)  # Increased num_workers
+        
+        fold_data_loaders.append((train_loader, val_loader))
+
+    return fold_data_loaders
+
 def main():
     # Start timing the execution
     start_time = time.time()
@@ -54,12 +75,13 @@ def main():
     set_seed(seed)
 
     train_dir = r'C:\Users\thepr\DeepLerningProject\chest_xray\train'
-    val_dir = r'C:\Users\thepr\DeepLerningProject\chest_xray\val'
     test_dir = r'C:\Users\thepr\DeepLerningProject\chest_xray\test'
 
-    # Set the best hyperparameters
+    # Set the hyperparameters
     learning_rate = 0.001
-    num_epochs = 20
+    weight_decay = 0.0001
+    num_epochs = 1
+    k = 3  # Number of folds for K-fold cross-validation
 
     # Data augmentations
     data_augmentations = [
@@ -71,29 +93,63 @@ def main():
         "RandomVerticalFlip()"
     ]
 
-    # Get data loaders
-    train_loader, val_loader, test_loader, before_count, after_count, class_names = get_data_loaders(
-        train_dir, val_dir, test_dir, batch_size=32, augment=True, undersample=True
-    )
+    # Get the dataset
+    full_dataset = ImageFolder(root=train_dir, transform=transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ]))
 
-    # Visualize class distribution before and after downsampling
-    visualize_class_distribution(before_count, after_count, class_names)
+    # Get test data loader
+    test_dataset = ImageFolder(root=test_dir, transform=transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ]))
+    test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=8, pin_memory=True)  # Increased batch size and num_workers
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f'Using device: {device}')
 
-    # Initialize and train the model
-    model = MobileNetV3Binary().to(device)
-    final_epoch, best_val_accuracy = train_model(model, train_loader, val_loader, num_epochs=num_epochs, learning_rate=learning_rate, device=device)
-    accuracy, precision, recall, f1, auc_roc = test_model(model, test_loader, device=device)
-    print(f'Test Accuracy: {accuracy}%')
-    print(f'Test Precision: {precision}%')
-    print(f'Test Recall: {recall}%')
-    print(f'Test F1-score: {f1}%')
-    print(f'Test AUC-ROC: {auc_roc}%')
+    # K-fold Cross-Validation
+    fold_data_loaders = get_kfold_data_loaders(full_dataset, k=k, batch_size=256)  # Increased batch size
 
-    # Save the model
-    torch.save(model.state_dict(), 'best_model.pth')
+    best_accuracy = 0
+    best_params = {}
+    hyperparam_tuning_results = []
+
+    for fold, (train_loader, val_loader) in enumerate(fold_data_loaders):
+        print(f"Training fold {fold + 1}/{k}")
+        model = MobileNetV3Binary().to(device)
+        final_epoch, val_accuracy = train_model(model, train_loader, val_loader, num_epochs=num_epochs, learning_rate=learning_rate, weight_decay=weight_decay, device=device)
+
+        # Aggregate predictions
+        accuracy, precision, recall, f1, auc_roc = test_model(model, test_loader, device=device)
+
+        fold_results = {
+            "fold": fold + 1,
+            "test_accuracy": accuracy,
+            "test_precision": precision,
+            "test_recall": recall,
+            "test_f1_score": f1,
+            "test_auc_roc": auc_roc
+        }
+        hyperparam_tuning_results.append(fold_results)
+
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            best_params = {
+                "fold": fold + 1,
+                "learning_rate": learning_rate,
+                "num_epochs": num_epochs,
+                "weight_decay": weight_decay
+            }
+
+        # Save the best model
+        torch.save(model.state_dict(), f'best_model_fold_{fold + 1}.pth')
+
+    print(f"Best parameters: {best_params}")
+    print(f"Best accuracy: {best_accuracy}")
 
     # End timing the execution
     end_time = time.time()
@@ -104,23 +160,23 @@ def main():
 
     # Write log file
     log_info = {
-        "Learning Rate": learning_rate,
+        "Best Parameters": best_params,
+        "Best Accuracy": best_accuracy,
         "Data Augmentations": data_augmentations,
         "Model Used": "MobileNetV3Binary",
         "Execution Time (seconds)": execution_time,
-        "Number of Epochs": final_epoch,
-        "Final Validation Accuracy": best_val_accuracy,
-        "Test Accuracy": accuracy,
-        "Test Precision": precision,
-        "Test Recall": recall,
-        "Test F1-score": f1,
-        "Test AUC-ROC": auc_roc,
+        "Number of Epochs": num_epochs,
+        "K-Fold Cross-Validation Results": hyperparam_tuning_results,
         "Hardware Profile": hw_profile
     }
 
     with open("training_log.txt", "w") as log_file:
         for key, value in log_info.items():
-            if isinstance(value, dict):
+            if isinstance(value, list):
+                log_file.write(f"{key}:\n")
+                for item in value:
+                    log_file.write(f"  {item}\n")
+            elif isinstance(value, dict):
                 log_file.write(f"{key}:\n")
                 for sub_key, sub_value in value.items():
                     log_file.write(f"  {sub_key}: {sub_value}\n")

@@ -9,14 +9,17 @@ def test_model(model, test_loader, device='cuda'):
         for images, labels in test_loader:
             images, labels = images.to(device), labels.unsqueeze(1).float().to(device)
             outputs = model(images)
-            predictions = outputs.round()
+            predicted = (outputs > 0).float()
             all_labels.extend(labels.cpu().numpy())
-            all_predictions.extend(predictions.cpu().numpy())
+            all_predictions.extend(predicted.cpu().numpy())
+
+    all_labels = [int(x) for x in all_labels]
+    all_predictions = [int(x) for x in all_predictions]
 
     accuracy = accuracy_score(all_labels, all_predictions)
-    precision = precision_score(all_labels, all_predictions)
-    recall = recall_score(all_labels, all_predictions)
-    f1 = f1_score(all_labels, all_predictions)
+    precision = precision_score(all_labels, all_predictions, average='binary')
+    recall = recall_score(all_labels, all_predictions, average='binary')
+    f1 = f1_score(all_labels, all_predictions, average='binary')
     auc_roc = roc_auc_score(all_labels, all_predictions)
-    
+
     return accuracy, precision, recall, f1, auc_roc
